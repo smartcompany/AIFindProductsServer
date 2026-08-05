@@ -1,0 +1,26 @@
+{
+  "name": "find-items-server",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "rm -rf .next && next build",
+    "start": "next start --port 3000",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "next": "15.1.11",
+    "nextjs-share-lib": "github:smartcompany/nextjs_share_lib#main",
+    "react": "19.0.1",
+    "react-dom": "19.0.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.11",
+    "typescript": "^5"
+  }
+}
