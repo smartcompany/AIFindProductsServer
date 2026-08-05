@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3000",
+    "prebuild": "npm update nextjs-share-lib",
     "build": "rm -rf .next && next build",
     "start": "next start --port 3000",
-    "lint": "eslint"
+    "lint": "eslint",
+    "update:share-lib": "npm update nextjs-share-lib"
   },
   "dependencies": {
     "next": "15.1.11",
