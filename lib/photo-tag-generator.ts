@@ -1,12 +1,15 @@
 import { z } from 'zod';
 
+import { geminiAi } from '@/lib/ai-client';
 import { isRetryableGeminiError } from '@/lib/gemini-errors';
 
-// Note: gemini-2.5-flash-lite was reported as unavailable for new users.
-// Fallback to the standard Flash model.
-const MODEL = 'gemini-2.5-flash';
-const MAX_OUTPUT_TOKENS = 2000;
-const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+// IMPORTANT:
+// - nextjs-share-lib's Gemini provider currently does not support image parts
+//   in a way that we can reuse here (we need Gemini REST inlineData for base64 bytes).
+// - Because of that, we must specify the Gemini model name in this file.
+// - The model `gemini-2.5-flash-lite` is reported as unavailable for new users,
+//   so we use `gemini-2.5-flash` by default.
+const GEMINI_PRESET = 'default' as const;
 const GEMINI_MAX_ATTEMPTS = 3;
 const GEMINI_RETRY_BASE_MS = 800;
 
@@ -76,13 +79,10 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-type GeminiGenerateContentResponse = {
-  candidates?: Array<{
-    content?: { parts?: Array<{ text?: string }> };
-    finishReason?: string;
-  }>;
-  error?: { message?: string };
-};
+function toDataUrl(imageBase64: string, mimeType: string): string {
+  // Gemini provider expects `data:<mime>;base64,<base64>`
+  return `data:${mimeType};base64,${imageBase64}`;
+}
 
 /**
  * Vision tagging via Gemini REST (inline image bytes).
@@ -96,61 +96,34 @@ async function generateTagsWithInlineImage(
     contentLanguage: z.infer<typeof contentLanguageSchema>;
   },
 ): Promise<string[]> {
-  const preset = { max_completion_tokens: MAX_OUTPUT_TOKENS };
+  // apiKey is already configured inside geminiAi; keep param for now.
+  void apiKey;
 
-  const body = {
-    systemInstruction: {
-      parts: [{ text: buildSystemInstruction(input.contentLanguage) }],
-    },
-    contents: [
+  const dataUrl = toDataUrl(input.imageBase64, input.mimeType);
+
+  const response = await geminiAi.createChatCompletion({
+    preset: GEMINI_PRESET,
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'system',
+        content: buildSystemInstruction(input.contentLanguage),
+      },
       {
         role: 'user',
-        parts: [
+        content: [
           {
-            inlineData: {
-              mimeType: input.mimeType,
-              data: input.imageBase64,
-            },
+            type: 'image_url',
+            image_url: { url: dataUrl, detail: 'auto' },
           },
-          { text: buildUserText() },
+          { type: 'text', text: buildUserText() },
         ],
       },
     ],
-    generationConfig: {
-      maxOutputTokens: preset.max_completion_tokens,
-      responseMimeType: 'application/json',
-    },
-  };
+  });
 
-  const response = await fetch(
-    `${GEMINI_API_BASE}/models/${MODEL}:generateContent`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey,
-      },
-      body: JSON.stringify(body),
-    },
-  );
-
-  const payload = (await response.json()) as GeminiGenerateContentResponse;
-
-  if (!response.ok) {
-    const message =
-      payload.error?.message ??
-      JSON.stringify(payload).slice(0, 500) ??
-      response.statusText;
-    throw new Error(`Gemini API error (${response.status}): ${message}`);
-  }
-
-  const text =
-    payload.candidates?.[0]?.content?.parts
-      ?.map((part) => part.text ?? '')
-      .join('')
-      .trim() ?? '';
-
-  if (!text) {
+  const text = response.choices[0]?.message?.content;
+  if (typeof text !== 'string' || !text.trim()) {
     throw new Error('Empty response from Gemini');
   }
 
