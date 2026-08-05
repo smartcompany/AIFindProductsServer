@@ -4,11 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3000",
-    "prebuild": "npm update nextjs-share-lib",
     "build": "rm -rf .next && next build",
     "start": "next start --port 3000",
     "lint": "eslint",
-    "update:share-lib": "npm update nextjs-share-lib"
+    "update:share-lib": "npm install nextjs-share-lib@github:smartcompany/nextjs_share_lib#main"
   },
   "dependencies": {
     "next": "15.1.11",
