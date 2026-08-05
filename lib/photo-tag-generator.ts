@@ -2,7 +2,9 @@ import { z } from 'zod';
 
 import { isRetryableGeminiError } from '@/lib/gemini-errors';
 
-const MODEL = 'gemini-2.5-flash-lite';
+// Note: gemini-2.5-flash-lite was reported as unavailable for new users.
+// Fallback to the standard Flash model.
+const MODEL = 'gemini-2.5-flash';
 const MAX_OUTPUT_TOKENS = 2000;
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 const GEMINI_MAX_ATTEMPTS = 3;

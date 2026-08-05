@@ -1,6 +1,6 @@
 # Find Items server
 
-Next.js API for online photo tagging with **Gemini 2.5 Flash-Lite** (same stack as Tabata: `nextjs-share-lib` + `GEMINI_API_KEY`).
+Next.js API for online photo tagging with **Gemini 2.5 Flash** (same stack as Tabata: `nextjs-share-lib` + `GEMINI_API_KEY`).
 
 ## Setup
 
