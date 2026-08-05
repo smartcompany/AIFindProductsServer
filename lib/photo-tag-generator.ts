@@ -3,13 +3,7 @@ import { z } from 'zod';
 import { geminiAi } from '@/lib/ai-client';
 import { isRetryableGeminiError } from '@/lib/gemini-errors';
 
-// IMPORTANT:
-// - nextjs-share-lib's Gemini provider currently does not support image parts
-//   in a way that we can reuse here (we need Gemini REST inlineData for base64 bytes).
-// - Because of that, we must specify the Gemini model name in this file.
-// - The model `gemini-2.5-flash-lite` is reported as unavailable for new users,
-//   so we use `gemini-2.5-flash` by default.
-const GEMINI_PRESET = 'default' as const;
+const GEMINI_PRESET = 'default_lite' as const;
 const GEMINI_MAX_ATTEMPTS = 3;
 const GEMINI_RETRY_BASE_MS = 800;
 
@@ -85,8 +79,7 @@ function toDataUrl(imageBase64: string, mimeType: string): string {
 }
 
 /**
- * Vision tagging via Gemini REST (inline image bytes).
- * nextjs-share-lib Gemini provider does not support image_url yet.
+ * Vision tagging via nextjs-share-lib Gemini client (data URL image parts).
  */
 async function generateTagsWithInlineImage(
   apiKey: string,
