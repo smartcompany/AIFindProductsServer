@@ -1,12 +1,14 @@
 {
   "photo_add_ad_every": 5,
-  "ios_ads": [{ "initial_ad": 1 }],
-  "android_ads": [{ "initial_ad": 1 }],
+  "ios_ads": [{ "initial_test": 1 }],
+  "android_ads": [{ "initial_test": 1 }],
   "ref": {
     "ios": {
+      "initial_test": "ca-app-pub-3940256099942544/4411468910",
       "initial_ad": "ca-app-pub-3940256099942544/4411468910"
     },
     "android": {
+      "initial_test": "ca-app-pub-3940256099942544/1033173712",
       "initial_ad": "ca-app-pub-3940256099942544/1033173712"
     }
   }
