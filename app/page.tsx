@@ -14,6 +14,9 @@ export default function HomePage() {
           {'{ imageBase64, mimeType, contentLanguage? }'}
         </code>
       </p>
+      <p>
+        <a href="/privacy">Privacy Policy</a> (개인정보 처리방침)
+      </p>
     </main>
   );
 }
